@@ -1,0 +1,8 @@
+.card { margin-bottom: 16px; }
+.grow { flex: 1; min-width: 220px; padding: 9px 10px; border: 1px solid var(--pc-border); border-radius: 8px; font: inherit; }
+.check { display: inline-flex; gap: 6px; align-items: center; }
+.hint { color: var(--pc-muted); font-size: 13px; margin: 8px 0; }
+.report { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.actions { white-space: nowrap; display: flex; gap: 6px; }
+.pager { margin-top: 14px; justify-content: center; }
+.alt { border-inline-start: 4px solid var(--pc-accent); }

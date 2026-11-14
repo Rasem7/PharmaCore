@@ -1,0 +1,49 @@
+:root {
+  --pc-navy: #0f2747;
+  --pc-navy-2: #17345d;
+  --pc-accent: #2f6fdb;
+  --pc-bg: #f3f5f9;
+  --pc-card: #fff;
+  --pc-border: #dde3ec;
+  --pc-text: #1b2433;
+  --pc-muted: #667085;
+  --pc-ok: #1a7f4b;
+  --pc-warn: #b26a00;
+  --pc-danger: #c0392b;
+  --pc-radius: 10px;
+  --pc-shadow: 0 1px 2px rgba(16, 24, 40, .06);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--pc-bg); color: var(--pc-text); font-size: 15px; line-height: 1.5;
+  font-family: 'Segoe UI', 'Noto Naskh Arabic', 'Tahoma', system-ui, sans-serif;
+}
+:focus-visible { outline: 2px solid var(--pc-accent); outline-offset: 2px; }
+
+.card { background: var(--pc-card); border: 1px solid var(--pc-border); border-radius: var(--pc-radius); box-shadow: var(--pc-shadow); padding: 20px; }
+.page-title { margin: 0 0 16px; font-size: 22px; }
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.spacer { flex: 1; }
+
+.btn { border: 1px solid var(--pc-border); background: #fff; color: var(--pc-text); border-radius: 8px; padding: 8px 14px; font: inherit; cursor: pointer; }
+.btn:hover { background: #f6f8fb; }
+.btn.primary { background: var(--pc-accent); border-color: var(--pc-accent); color: #fff; }
+.btn.primary:hover { background: #2561c4; }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--pc-muted); }
+.field input, .field select { padding: 9px 10px; border: 1px solid var(--pc-border); border-radius: 8px; font: inherit; background: #fff; }
+.field input.invalid { border-color: var(--pc-danger); }
+.error { color: var(--pc-danger); font-size: 13px; }
+
+table.grid { width: 100%; border-collapse: collapse; }
+table.grid th, table.grid td { padding: 10px 12px; border-bottom: 1px solid var(--pc-border); text-align: start; }
+table.grid th { font-size: 13px; color: var(--pc-muted); font-weight: 600; background: #fafbfd; }
+table.grid tr:hover td { background: #f8fafd; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #eef2f7; }
+.badge.ok { background: #e3f4ea; color: var(--pc-ok); }
+.badge.warn { background: #fdf0dc; color: var(--pc-warn); }
+.badge.danger { background: #fbe4e1; color: var(--pc-danger); }

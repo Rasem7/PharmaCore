@@ -1,0 +1,85 @@
+<div class="row head">
+  <h1 class="page-title">{{ 'products.title' | t }}</h1>
+  <span class="spacer"></span>
+  @if (auth.can('products.write')) {
+    <button class="btn primary" type="button" (click)="openNew()">{{ 'products.add' | t }}</button>
+  }
+</div>
+
+@if (editing()) {
+  <form class="card form" [formGroup]="form" (ngSubmit)="save()">
+    <div class="grid2">
+      <div class="field">
+        <label for="cn">{{ 'products.form.commercialName' | t }}</label>
+        <input id="cn" formControlName="commercialName" [class.invalid]="invalid('commercialName')">
+        @if (invalid('commercialName')) { <span class="error">{{ 'common.required' | t }}</span> }
+      </div>
+      <div class="field"><label for="bc">{{ 'products.form.barcode' | t }}</label><input id="bc" formControlName="primaryBarcode"></div>
+      <div class="field"><label for="ar">{{ 'products.form.nameAr' | t }}</label><input id="ar" formControlName="nameAr" dir="rtl"></div>
+      <div class="field"><label for="en">{{ 'products.form.nameEn' | t }}</label><input id="en" formControlName="nameEn" dir="ltr"></div>
+      <div class="field"><label for="sc">{{ 'products.form.scientificName' | t }}</label><input id="sc" formControlName="scientificName"></div>
+      <div class="field"><label for="pf">{{ 'products.form.pharmaceuticalForm' | t }}</label><input id="pf" formControlName="pharmaceuticalForm"></div>
+      <div class="field">
+        <label for="pp">{{ 'products.form.purchasePrice' | t }}</label>
+        <input id="pp" type="number" step="0.01" formControlName="purchasePrice" [class.invalid]="invalid('purchasePrice')">
+        @if (invalid('purchasePrice')) { <span class="error">{{ 'common.nonNegative' | t }}</span> }
+      </div>
+      <div class="field">
+        <label for="sp">{{ 'products.form.sellingPrice' | t }}</label>
+        <input id="sp" type="number" step="0.01" formControlName="sellingPrice" [class.invalid]="invalid('sellingPrice')">
+        @if (invalid('sellingPrice')) { <span class="error">{{ 'common.nonNegative' | t }}</span> }
+      </div>
+      <div class="field">
+        <label for="mn">{{ 'products.form.minStock' | t }}</label>
+        <input id="mn" type="number" formControlName="minStock" [class.invalid]="invalid('minStock')">
+      </div>
+      <div class="field"><label for="mx">{{ 'products.form.maxStock' | t }}</label><input id="mx" type="number" formControlName="maxStock"></div>
+      <div class="field">
+        <label for="st">{{ 'products.form.status' | t }}</label>
+        <select id="st" formControlName="status">
+          <option [ngValue]="1">{{ 'products.status.1' | t }}</option>
+          <option [ngValue]="2">{{ 'products.status.2' | t }}</option>
+          <option [ngValue]="3">{{ 'products.status.3' | t }}</option>
+        </select>
+      </div>
+    </div>
+    @if (saveError()) { <p class="error" role="alert">{{ saveError()! | t }}</p> }
+    <div class="row">
+      <button class="btn primary" type="submit" [disabled]="saving()">{{ 'common.save' | t }}</button>
+      <button class="btn" type="button" (click)="cancel()">{{ 'common.cancel' | t }}</button>
+    </div>
+  </form>
+}
+
+<section class="card">
+  <div class="field">
+    <input type="search" [placeholder]="'products.search' | t" [value]="search()" (input)="onSearch($any($event.target).value)">
+  </div>
+  <table class="grid">
+    <thead>
+      <tr>
+        <th>{{ 'products.col.name' | t }}</th><th>{{ 'products.col.barcode' | t }}</th><th>{{ 'products.col.form' | t }}</th>
+        <th>{{ 'products.col.price' | t }}</th><th>{{ 'products.col.status' | t }}</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (p of items(); track p.id) {
+        <tr>
+          <td>{{ p.commercialName }}</td>
+          <td>{{ p.primaryBarcode }}</td>
+          <td>{{ p.pharmaceuticalForm }}</td>
+          <td>{{ p.sellingPrice }}</td>
+          <td><span class="badge" [class]="'badge ' + statusClass(p.status)">{{ 'products.status.' + p.status | t }}</span></td>
+          <td>@if (auth.can('products.write')) { <button class="btn" type="button" (click)="openEdit(p)">{{ 'products.edit' | t }}</button> }</td>
+        </tr>
+      } @empty {
+        <tr><td colspan="6">{{ loading() ? '…' : ('products.empty' | t) }}</td></tr>
+      }
+    </tbody>
+  </table>
+  <div class="row pager">
+    <button class="btn" type="button" (click)="go(-1)" [disabled]="page() <= 1">{{ 'common.prev' | t }}</button>
+    <span>{{ page() }} / {{ pages() }}</span>
+    <button class="btn" type="button" (click)="go(1)" [disabled]="page() >= pages()">{{ 'common.next' | t }}</button>
+  </div>
+</section>

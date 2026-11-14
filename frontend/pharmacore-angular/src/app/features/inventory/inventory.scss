@@ -1,0 +1,13 @@
+.head { margin-bottom: 4px; }
+.card { margin-bottom: 16px; }
+.form { display: block; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 16px; margin-top: 10px; }
+.wh { min-width: 260px; }
+.grow { flex: 1; min-width: 200px; }
+.hint { color: var(--pc-muted); font-size: 13px; margin: 6px 0 0; }
+.notice { background: #e3f4ea; color: var(--pc-ok); padding: 10px 14px; border-radius: 8px; }
+.picker { position: relative; margin-top: 10px; }
+.results { position: absolute; inset-inline: 0; top: 100%; z-index: 5; margin: 2px 0 0; padding: 4px; list-style: none;
+  background: #fff; border: 1px solid var(--pc-border); border-radius: 8px; box-shadow: 0 6px 18px rgba(16, 24, 40, .12); }
+.results button { width: 100%; text-align: start; border: 0; background: none; padding: 8px 10px; font: inherit; cursor: pointer; border-radius: 6px; }
+.results button:hover { background: #f1f5fb; }

@@ -1,0 +1,122 @@
+<div class="row head">
+  <h1 class="page-title">{{ 'inventory.title' | t }}</h1>
+  <span class="spacer"></span>
+  @if (auth.can('inventory.write') && warehouseId()) {
+    <button class="btn primary" type="button" (click)="openReceive()">{{ 'inventory.receive' | t }}</button>
+  }
+</div>
+
+@if (notice()) { <p class="notice" role="status">{{ notice()! | t }}</p> }
+
+@if (warehouses().length === 0 && !loading()) {
+  <section class="card"><p>{{ 'inventory.noWarehouse' | t }}</p></section>
+}
+
+@if (panel() === 'receive') {
+  <form class="card form" [formGroup]="receiveForm" (ngSubmit)="submitReceive()">
+    <strong>{{ 'inventory.receive' | t }}</strong>
+    <div class="field picker">
+      <label for="pq">{{ 'inventory.product' | t }}</label>
+      <input id="pq" type="search" autocomplete="off" [value]="productQuery()" (input)="onProductSearch($any($event.target).value)"
+             [placeholder]="'inventory.productSearch' | t">
+      @if (productResults().length) {
+        <ul class="results">
+          @for (p of productResults(); track p.id) {
+            <li><button type="button" (click)="pickProduct(p)">{{ p.commercialName }} <small dir="ltr">{{ p.primaryBarcode }}</small></button></li>
+          }
+        </ul>
+      }
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="bn">{{ 'inventory.batch' | t }}</label>
+        <input id="bn" formControlName="batchNumber" [class.invalid]="invalid('receive', 'batchNumber')">
+        @if (invalid('receive', 'batchNumber')) { <span class="error">{{ 'common.required' | t }}</span> }
+      </div>
+      <div class="field">
+        <label for="ex">{{ 'inventory.expiry' | t }}</label>
+        <input id="ex" type="date" formControlName="expiryDate" [class.invalid]="invalid('receive', 'expiryDate')">
+        @if (invalid('receive', 'expiryDate')) { <span class="error">{{ 'common.required' | t }}</span> }
+      </div>
+      <div class="field"><label for="pd">{{ 'inventory.production' | t }}</label><input id="pd" type="date" formControlName="productionDate"></div>
+      <div class="field">
+        <label for="qt">{{ 'inventory.quantity' | t }}</label>
+        <input id="qt" type="number" step="1" formControlName="quantity" [class.invalid]="invalid('receive', 'quantity')">
+        @if (invalid('receive', 'quantity')) { <span class="error">{{ 'inventory.err.qty' | t }}</span> }
+      </div>
+    </div>
+    @if (error()) { <p class="error" role="alert">{{ error()! | t }}</p> }
+    <div class="row">
+      <button class="btn primary" type="submit" [disabled]="saving()">{{ 'common.save' | t }}</button>
+      <button class="btn" type="button" (click)="close()">{{ 'common.cancel' | t }}</button>
+    </div>
+  </form>
+}
+
+@if (panel() === 'adjust' && adjusting(); as a) {
+  <form class="card form" [formGroup]="adjustForm" (ngSubmit)="submitAdjust()">
+    <strong>{{ 'inventory.adjust' | t }}: {{ a.productName }} / {{ a.batchNumber }} ({{ a.quantity }})</strong>
+    <p class="hint">{{ 'inventory.adjust.hint' | t }}</p>
+    <div class="grid2">
+      <div class="field">
+        <label for="dl">{{ 'inventory.delta' | t }}</label>
+        <input id="dl" type="number" step="1" formControlName="quantityDelta">
+      </div>
+      <div class="field">
+        <label for="rs">{{ 'inventory.reason' | t }}</label>
+        <input id="rs" formControlName="reason" [class.invalid]="invalid('adjust', 'reason')">
+        @if (invalid('adjust', 'reason')) { <span class="error">{{ 'common.required' | t }}</span> }
+      </div>
+    </div>
+    @if (error()) { <p class="error" role="alert">{{ error()! | t }}</p> }
+    <div class="row">
+      <button class="btn primary" type="submit" [disabled]="saving()">{{ 'common.save' | t }}</button>
+      <button class="btn" type="button" (click)="close()">{{ 'common.cancel' | t }}</button>
+    </div>
+  </form>
+}
+
+<section class="card">
+  <div class="row">
+    <div class="field wh">
+      <label for="wh">{{ 'inventory.warehouse' | t }}</label>
+      <select id="wh" (change)="selectWarehouse($any($event.target).value)">
+        @for (w of warehouses(); track w.id) {
+          <option [value]="w.id" [selected]="w.id === warehouseId()">{{ w.branchName }} / {{ w.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="field grow">
+      <label for="fl">{{ 'inventory.filter' | t }}</label>
+      <input id="fl" type="search" [value]="filter()" (input)="filter.set($any($event.target).value)">
+    </div>
+  </div>
+
+  <table class="grid">
+    <thead>
+      <tr>
+        <th>{{ 'inventory.product' | t }}</th><th>{{ 'inventory.batch' | t }}</th><th>{{ 'inventory.expiry' | t }}</th>
+        <th>{{ 'inventory.quantity' | t }}</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of shown(); track r.batchId + r.warehouseId) {
+        <tr>
+          <td>{{ r.productName }}</td>
+          <td dir="ltr">{{ r.batchNumber }}</td>
+          <td dir="ltr">
+            {{ r.expiryDate }}
+            @switch (expiryStatus(r.expiryDate)) {
+              @case ('expired') { <span class="badge danger">{{ 'inventory.status.expired' | t }}</span> }
+              @case ('soon') { <span class="badge warn">{{ 'inventory.status.soon' | t }}</span> }
+            }
+          </td>
+          <td>{{ r.quantity }}</td>
+          <td>@if (auth.can('inventory.write')) { <button class="btn" type="button" (click)="openAdjust(r)">{{ 'inventory.adjust' | t }}</button> }</td>
+        </tr>
+      } @empty {
+        <tr><td colspan="5">{{ loading() ? '…' : ('inventory.empty' | t) }}</td></tr>
+      }
+    </tbody>
+  </table>
+</section>
