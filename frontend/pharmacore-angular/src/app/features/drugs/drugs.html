@@ -1,0 +1,90 @@
+<h1 class="page-title">{{ 'drugs.title' | t }}</h1>
+
+@if (auth.can('drugref.import')) {
+  <section class="card import">
+    <strong>{{ 'drugs.import' | t }}</strong>
+    <p class="hint">{{ 'drugs.import.hint' | t }}</p>
+    <input type="file" accept=".csv" (change)="onFile($event)" [disabled]="importing()">
+    @if (importing()) { <span class="hint">…</span> }
+    @if (importError()) { <p class="error" role="alert">{{ importError()! | t }}</p> }
+    @if (report(); as r) {
+      <div class="report">
+        <span class="badge">{{ 'drugs.report.total' | t }}: {{ r.totalRows }}</span>
+        <span class="badge ok">{{ 'drugs.report.inserted' | t }}: {{ r.inserted }}</span>
+        <span class="badge ok">{{ 'drugs.report.updated' | t }}: {{ r.updated }}</span>
+        <span class="badge">{{ 'drugs.report.unchanged' | t }}: {{ r.unchanged }}</span>
+        <span class="badge warn">{{ 'drugs.report.duplicates' | t }}: {{ r.duplicatesInFile }}</span>
+        <span class="badge danger">{{ 'drugs.report.rejected' | t }}: {{ r.rejected }}</span>
+      </div>
+      @if (r.issues.length) {
+        <details><summary>{{ 'drugs.report.issues' | t }} ({{ r.issues.length }})</summary>
+          <ul>@for (i of r.issues; track $index) { <li>#{{ i.rowNumber }}: {{ i.message }}</li> }</ul>
+        </details>
+      }
+    }
+  </section>
+}
+
+<section class="card">
+  <div class="row">
+    <input class="grow" type="search" [placeholder]="'drugs.search' | t" [value]="search()" (input)="onSearch($any($event.target).value)">
+    <label class="check"><input type="checkbox" [checked]="drugsOnly()" (change)="toggleDrugsOnly($any($event.target).checked)"> {{ 'drugs.drugsOnly' | t }}</label>
+  </div>
+  <p class="hint">{{ 'drugs.priceNote' | t }}</p>
+
+  <table class="grid">
+    <thead>
+      <tr>
+        <th>{{ 'drugs.col.nameEn' | t }}</th><th>{{ 'drugs.col.nameAr' | t }}</th><th>{{ 'drugs.col.active' | t }}</th>
+        <th>{{ 'drugs.col.manufacturer' | t }}</th><th>{{ 'drugs.col.price' | t }}</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (d of items(); track d.id) {
+        <tr>
+          <td dir="ltr">{{ d.nameEn }}</td>
+          <td>{{ d.nameAr }}</td>
+          <td dir="ltr">{{ d.scientificName }}</td>
+          <td dir="ltr">{{ d.manufacturer }}</td>
+          <td>{{ d.referencePrice }}</td>
+          <td class="actions">
+            <button class="btn" type="button" (click)="showAlternatives(d)">{{ 'drugs.alternatives' | t }}</button>
+            @if (auth.can('products.write')) {
+              <button class="btn primary" type="button" (click)="addToProducts(d)">{{ 'drugs.use' | t }}</button>
+            }
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="6">{{ loading() ? '…' : ('drugs.empty' | t) }}</td></tr>
+      }
+    </tbody>
+  </table>
+  <div class="row pager">
+    <button class="btn" type="button" (click)="go(-1)" [disabled]="page() <= 1">{{ 'common.prev' | t }}</button>
+    <span>{{ page() }} / {{ pages() }}</span>
+    <button class="btn" type="button" (click)="go(1)" [disabled]="page() >= pages()">{{ 'common.next' | t }}</button>
+  </div>
+</section>
+
+@if (selected(); as s) {
+  <section class="card alt">
+    <div class="row">
+      <strong dir="ltr">{{ s.nameEn }}</strong>
+      <span class="spacer"></span>
+      <button class="btn" type="button" (click)="selected.set(null)">{{ 'common.cancel' | t }}</button>
+    </div>
+    <p class="hint">{{ 'drugs.alternatives.note' | t }}</p>
+    @if (altLoading()) { <p>…</p> }
+    @else if (alternatives().length === 0) { <p>{{ 'drugs.alternatives.none' | t }}</p> }
+    @else {
+      <table class="grid">
+        <thead><tr><th>{{ 'drugs.col.nameEn' | t }}</th><th>{{ 'drugs.col.manufacturer' | t }}</th><th>{{ 'drugs.col.price' | t }}</th></tr></thead>
+        <tbody>
+          @for (a of alternatives(); track a.id) {
+            <tr><td dir="ltr">{{ a.nameEn }}</td><td dir="ltr">{{ a.manufacturer }}</td><td>{{ a.referencePrice }}</td></tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+}
