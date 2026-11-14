@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { TranslatePipe } from '../../core/translate.pipe';
 import { Product, ProductsService } from '../products/products.service';
@@ -136,7 +136,8 @@ export class Inventory {
   close(): void { this.panel.set('none'); this.error.set(null); }
 
   invalid(form: 'receive' | 'adjust', name: string): boolean {
-    const c = (form === 'receive' ? this.receiveForm : this.adjustForm).get(name);
+    const group: AbstractControl = form === 'receive' ? this.receiveForm : this.adjustForm;
+    const c = group.get(name);
     return !!c && c.invalid && (c.touched || c.dirty);
   }
 
